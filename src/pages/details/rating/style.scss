@@ -1,0 +1,66 @@
+/* style.scss */
+.two-containers {
+  display: flex; /* Use flexbox to align containers side by side */
+  gap: 20px; /* Space between containers */
+  padding: 20px;
+}
+
+.container {
+  flex: 1; /* Each container takes equal space */
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  position: relative; /* Required for positioning dropdown menu */
+  transition: all 0.3s ease; /* Smooth transition for expanding */
+}
+
+.container.expanded {
+  height: auto; /* Allows container to expand to fit content */
+}
+
+.left-container {
+  background-color: #e0f7fa; /* Optional different color for left container */
+}
+
+.right-container {
+  background-color: #ffe0b2; /* Optional different color for right container */
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.comment-link {
+  cursor: pointer;
+  color: #007bff;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.comment-link:hover {
+  text-decoration: underline;
+}
+
+.dropdown-content {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  text-decoration: none;
+  color: black;
+  display: block;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}

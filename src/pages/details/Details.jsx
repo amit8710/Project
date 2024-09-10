@@ -3,10 +3,12 @@ import "./style.scss";
 import useFetch from './../../hooks/useFetch';
 import { useParams } from 'react-router-dom';
 import DetailsBanner from './detailsBanner/DetailsBanner';
+
 import Cast from './cast/Cast';
 import VideosSection from './videosSection/VideosSection';
 import Similar from './carousels/Similar';
 import Recommendation from './carousels/Recommendations';
+import Rating from './rating/Rating';
 
 const Details = () => {
 
@@ -17,6 +19,7 @@ const Details = () => {
   return (
     <div>
       <DetailsBanner video={data?.results?.[0]} crew={credits?.crew}/>
+      <Rating />
       <Cast data={credits?.cast} loading={creditsLoading}/>
       <VideosSection data={data} loading={loading}/>
       <Similar mediaType={mediaType} id={id}/>
