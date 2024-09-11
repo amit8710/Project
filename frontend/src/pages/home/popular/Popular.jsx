@@ -5,38 +5,55 @@ import Carousel from "../../../components/carousel/Carousel";
 import axios from "axios";
 
 const Popular = () => {
+  // State to store movies
+  const [movies, setMovies] = useState([]);
+
   // Fetch data from the selected endpoint
   const { data, loading } = useFetch("/movie/popular");
 
   console.log(data);
 
-  const checkAndInsertMovie = async (movie) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/check-and-insert-movie",
-        {
-          id: movie.id,
-          title: movie.title,
-        }
-      );
+  // const checkAndInsertMovie = async (movie) => {
+  //   try {
+  //     const response = await axios.post(
+  //       "http://localhost:5000/api/check-and-insert-movie",
+  //       {
+  //         id: movie.id,
+  //         title: movie.title,
+  //       }
+  //     );
 
-      console.log(response.data.message);
-    } catch (error) {
-      console.error("Error inserting movie:", error);
-    }
-  };
+  //     console.log(response.data.message);
+  //   } catch (error) {
+  //     console.error("Error inserting movie:", error);
+  //   }
+  // };
 
-  // Whenever `data` is fetched, check and insert movies into MongoDB
+  // Whenever `data` is fetched, update the local movies state
   useEffect(() => {
     if (data?.results) {
-      console.log(data.results);
-      const movies = data.results;
+      // Create an array with only id and title
+      const moviesWithIdAndTitle = data.results.map(({ id, title }) => ({
+        id,
+        title,
+      }));
 
-      movies.forEach((movie) => {
-        checkAndInsertMovie(movie);
-      });
+      // Update state with the new array
+      setMovies(moviesWithIdAndTitle);
+
+      // Log only the id and title of each movie
+      console.log("Movies with ID and Title:", moviesWithIdAndTitle);
     }
   }, [data]);
+
+  // // Check and insert movies into MongoDB
+  // useEffect(() => {
+  //   if (movies.length > 0) {
+  //     movies.forEach((movie) => {
+  //       checkAndInsertMovie(movie);
+  //     });
+  //   }
+  // }, [movies]);
 
   return (
     <div className="carouselSection">
