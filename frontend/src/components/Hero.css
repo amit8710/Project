@@ -1,0 +1,14 @@
+.hero {
+    text-align: center;
+    color: #fff;
+    padding: 50px;
+    /* background: url('/path/to/hero-background.jpg') no-repeat center center/cover; */
+  }
+  
+  .hero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+  
+
+  
