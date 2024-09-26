@@ -6,8 +6,10 @@ const Hero = () => {
   return (
     <section className="hero">
       <h1>Welcome</h1>
-      <p>AI-Driven Sentiment in Movie Reviews. Explore Now.</p>
-      <Search />
+      <div className="searchContain">
+        <p>AI-Driven Sentiment in Movie Reviews. Explore Now.</p>
+        <Search />
+      </div>
     </section>
   );
 };

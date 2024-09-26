@@ -1,17 +1,18 @@
 import React from "react";
 import "./App.css";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import SlideComp from "./components/SlideComp";
-import Footer from "./components/Footer";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import MovieDetails from "./pages/MovieDetails";
 
 function App() {
   return (
     <div className="App">
-      <Header />
-      <Hero />
-      <SlideComp />
-      <Footer />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/movies/:title" element={<MovieDetails />} />
+        </Routes>
+      </Router>
     </div>
   );
 }

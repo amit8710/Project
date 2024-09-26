@@ -1,13 +1,21 @@
 .hero {
     text-align: center;
     color: #fff;
-    padding: 50px;
-    /* background: url('/path/to/hero-background.jpg') no-repeat center center/cover; */
+    padding-top: 50px;
+    margin-bottom: 270px;
   }
   
-  .hero h1 {
+  .searchContain h1 {
     font-size: 48px;
-    margin-bottom: 20px;
+    margin-bottom: 80px;
+  }
+
+  .searchContain p {
+    margin-bottom: 30px;
+  }
+
+  .searchContain{
+    margin-top: 70px;
   }
   
 

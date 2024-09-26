@@ -19,6 +19,8 @@ const fetchMoviesByQuery = async (query) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     const data = await response.json();
+    console.log(data);
+
     return data.results; // Return the list of movies
   } catch (error) {
     console.error("Error fetching movies:", error);

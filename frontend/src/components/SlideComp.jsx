@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./SlideComp.css";
 import useFetchFromDB from "../hooks/useFetchFromDB";
+import MovieCard from "./MovieCard"; // Import the new MovieCard component
 
 // Fetch popular movies from TMDB API
 const fetchPopularMoviesFromTMDB = async () => {
@@ -14,7 +15,7 @@ const fetchPopularMoviesFromTMDB = async () => {
     headers: {
       accept: "application/json",
       Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0OTJlODlhYzM2Njc3ZDMxYWE4ZGQ5ZDQ0ZjdlNGYxMCIsIm5iZiI6MTcyNjU2MjExMi4zMjMwNDMsInN1YiI6IjY2ZGRjZDQxYmI3ZGU5ZjIzNzM4YzM1ZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.NxpgOEY7mXH8jDEsP_wiV0G4dn_VY9-WqJME1_HaXOE",
+        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0OTJlODlhYzM2Njc3ZDMxYWE4ZGQ5ZDQ0ZjdlNGYxMCIsIm5iZiI6MTcyNjg4NTA1My41MzY1ODQsInN1YiI6IjY2ZGRjZDQxYmI3ZGU5ZjIzNzM4YzM1ZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.gJwYz8jgR1R3b2mNLPE5WJVHFlxA7tRVfYTnsDdqVug", // Replace this with your actual token
     },
   };
 
@@ -24,6 +25,7 @@ const fetchPopularMoviesFromTMDB = async () => {
   }
 
   const data = await response.json();
+
   return data.results.map((movie) => ({
     title: movie.original_title,
     overview: movie.overview,
@@ -45,7 +47,7 @@ const saveMoviesToDB = async (movies) => {
 };
 
 const SlideComp = () => {
-  const { movies: dbMovies, loading, error } = useFetchFromDB();
+  const { movies: dbMovies, loading, error } = useFetchFromDB(); // Custom hook to fetch data
 
   useEffect(() => {
     const fetchAndSaveMovies = async () => {
@@ -108,16 +110,7 @@ const SlideComp = () => {
       <h2>What's Popular</h2>
       <Slider {...sliderSettings}>
         {dbMovies.map((movie, index) => (
-          <div className="movie-card" key={index}>
-            <img
-              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              alt={movie.title}
-            />
-            <div className="movie-info">
-              <h3>{movie.title}</h3>
-              <p>Release: {movie.release_date}</p>
-            </div>
-          </div>
+          <MovieCard key={index} movie={movie} />
         ))}
       </Slider>
     </section>

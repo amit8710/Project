@@ -2,9 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
-  margin: 60px 0;
-
+  
 }
 
 .searchSec input[type="text"] {
@@ -67,7 +65,6 @@
   }
 
   .searchSec input[type="text"] {
-    margin-bottom: 10px;
     box-shadow: none; /* removed box-shadow on smaller screens */
   }
 }

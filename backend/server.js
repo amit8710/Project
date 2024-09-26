@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
 import Movie from "./Models/Movie.js";
+import updateAllMovieReviews from "./Controller/MovieController.js";
 
 // Initialize Express app
 const app = express();
@@ -48,7 +49,29 @@ app.get("/movies", async (req, res) => {
   }
 });
 
+app.get("/movies/:title", async (req, res) => {
+  const { title } = req.params;
+  try {
+    const movie = await Movie.findOne({ title: title.replace(/_/g, " ") }); // Replace underscores with spaces
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+    res.json(movie);
+    console.log(movie);
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// app.get("/update-all-reviews", async (req, res) => {
+//   await updateAllMovieReviews();
+//   res.send(
+//     "Review update process for all movies with empty comments has been initiated."
+//   );
+// });
+
 // Start server
-app.listen(5000, () => {
+app.listen(5000, async () => {
   console.log("Server running on port 5000");
+  // await updateAllMovieReviews();
 });
