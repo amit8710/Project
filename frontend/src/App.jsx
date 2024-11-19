@@ -1,74 +1,86 @@
-import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { fetchDataFromApi } from "./utils/api";
-import { useSelector, useDispatch } from "react-redux";
-import { getApiConfiguration, getGenres } from "./store/homeSlice";
-
-import Header from "./components/header/Header";
-import Footer from "./components/footer/Footer";
-import Home from "./pages/home/Home";
-import Details from "./pages/details/Details";
-import SearchResult from "./pages/searchResult/SearchResult";
-import Explore from "./pages/explore/Explore";
-import PageNotFound from "./pages/404/PageNotFound";
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import Home from "./pages/Home";
+import MovieDetails from "./pages/MovieDetails";
+import LoginForm from "./components/loginsignup/LoginForm";
+import RegistrationForm from "./components/loginsignup/RegistrationForm";
 
 function App() {
-  const dispatch = useDispatch();
-
-  const { url } = useSelector((state) => state.home);
-  console.log(url);
+  // Initialize isLoggedIn based on stayLoggedIn and isLoggedIn in localStorage
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const stayLoggedIn = localStorage.getItem("stayLoggedIn") === "true";
+    const isLogged = localStorage.getItem("isLoggedIn") === "true";
+    return stayLoggedIn && isLogged;
+  });
 
   useEffect(() => {
-    fetchApiConfig(); //invoke method
-    genresCall();
-  }, []); //[]-dependency
+    // Sync isLoggedIn state with localStorage whenever it changes
+    if (isLoggedIn) {
+      localStorage.setItem("isLoggedIn", "true");
+    } else {
+      localStorage.removeItem("isLoggedIn");
+    }
+    console.log(isLoggedIn);
+  }, [isLoggedIn]);
 
-  const fetchApiConfig = () => {
-    fetchDataFromApi("/configuration").then((res) => {
-      console.log(res);
-
-      const url = {
-        backdrop: res.images.secure_base_url + "original",
-        poster: res.images.secure_base_url + "original",
-        profile: res.images.secure_base_url + "original",
-      };
-
-      dispatch(getApiConfiguration(url));
-    });
+  const handleLogin = () => {
+    // Set isLoggedIn and stayLoggedIn to true on login
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("stayLoggedIn", "true");
+    setIsLoggedIn(true);
   };
 
-  //use promises because 2 request should send to server to get 2 responses at the same time.
-  const genresCall = async () => {
-    let promises = [];
-    let endPoints = ["tv", "movie"];
-    let allGenres = {};
+  const handleLogout = () => {
+    // Clear authentication tokens and localStorage
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("stayLoggedIn");
 
-    endPoints.forEach((url) => {
-      promises.push(fetchDataFromApi(`/genre/${url}/list`));
-    });
-
-    const data = await Promise.all(promises);
-    console.log(data);
-    data.map(({ genres }) => {
-      return genres.map((item) => (allGenres[item.id] = item));
-    });
-
-    //store genres in redux store
-    dispatch(getGenres(allGenres));
+    // Immediately update isLoggedIn state to false
+    setIsLoggedIn(false);
   };
 
   return (
-    <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/:mediaType/:id" element={<Details />} />
-        <Route path="/search/:query" element={<SearchResult />} />
-        <Route path="/explore/:mediaType" element={<Explore />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+    <div className="App">
+      <Router>
+        <Routes>
+          {/* Route for login */}
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/" />
+              ) : (
+                <LoginForm setIsLoggedIn={handleLogin} />
+              )
+            }
+          />
+
+          {/* Route for registration */}
+          <Route path="/register" element={<RegistrationForm />} />
+
+          {/* Protected route for home */}
+          <Route
+            path="/"
+            element={isLoggedIn ? <Home /> : <Navigate to="/login" />}
+          />
+
+          {/* Protected route for movie details */}
+          <Route
+            path="/movies/:title"
+            element={isLoggedIn ? <MovieDetails /> : <Navigate to="/login" />}
+          />
+
+          {/* Redirect all other routes to login */}
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </div>
   );
 }
 

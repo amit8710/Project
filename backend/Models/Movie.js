@@ -1,22 +1,23 @@
 import mongoose from "mongoose";
 
-const movieSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema(
   {
-    id: { type: Number, required: true },
-    title: {
-      type: String,
-      required: true,
-    },
-    // comments: {
-    //   type: Array,
-    //   required: false,
-    // },
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    review: { type: String, required: true },
   },
-  {
-    timestamps: true,
-  }
-);
+  { _id: false }
+); // Disable the _id field for comments
 
-const Movie = mongoose.model("Movie", movieSchema); // mongoose wiwlll save as movies itself
+// Define the movie schema
+const movieSchema = new mongoose.Schema({
+  title: { type: String, unique: true },
+  poster_path: String,
+  release_date: String,
+  overview: String,
+  comments: [commentSchema], // Use the commentSchema for comments
+});
+
+const Movie = mongoose.model("Movie", movieSchema, "movies");
 
 export default Movie;

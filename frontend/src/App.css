@@ -3,7 +3,17 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
 }
+
+*{
+  font-family: "Gowun Batang", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+
 
 .logo {
   height: 6em;
