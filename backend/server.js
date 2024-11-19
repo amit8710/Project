@@ -1,77 +1,139 @@
-import express from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import cors from "cors";
-import Movie from "./Models/Movie.js";
-import updateAllMovieReviews from "./Controller/MovieController.js";
+// Import dependencies using ES module syntax
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-// Initialize Express app
+// Load environment variables
+dotenv.config();
+
 const app = express();
-app.use(bodyParser.json());
+const PORT = process.env.PORT || 5001;
+const JWT_SECRET = process.env.JWT_SECRET;
+
 app.use(cors());
+app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect("mongodb://localhost:27017/CineMood");
-
-// Route to save movies in the database
-app.post("/save-movies", async (req, res) => {
+const connectDB = async () => {
   try {
-    const movies = req.body;
-
-    for (const movie of movies) {
-      // Check if the movie with the same title already exists in the database
-      const existingMovie = await Movie.findOne({ title: movie.title });
-
-      if (!existingMovie) {
-        // If the movie doesn't exist, insert it
-        const newMovie = new Movie(movie);
-        await newMovie.save();
-        console.log(`Movie "${movie.title}" added to the database.`);
-      } else {
-        console.log(`Movie "${movie.title}" already exists in the database.`);
-      }
-    }
-
-    res.status(200).send("Movies processed successfully.");
+    if (!process.env.MONGO_URI) throw new Error('MONGO_URI is not defined in .env');
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('Connected to MongoDB successfully!');
   } catch (error) {
-    console.error("Error processing movies:", error);
-    res.status(500).send("Error processing movies");
+    console.error('Error connecting to MongoDB:', error.message);
+    process.exit(1);
+  }
+};
+connectDB();
+
+// User Schema
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+  },
+  password: { type: String, required: true },
+  terms: { type: Boolean, required: true },
+  profileImage: { type: String, default: null }, // New field for profile image
+});
+
+const User = mongoose.model('User', userSchema);
+
+// Middleware to verify JWT
+const authenticateToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Invalid token.' });
+    req.user = user;
+    next();
+  });
+};
+
+// Registration Route
+app.post('/api/register', async (req, res) => {
+  const { username, email, password, terms, profileImage } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ error: 'Email is already in use' });
+
+    if (!terms) return res.status(400).json({ error: 'You must accept the terms and conditions' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+      terms,
+      profileImage: profileImage || null, // Store profile image if provided
+    });
+    await newUser.save();
+
+    res.status(200).json({ message: 'Registration successful' });
+  } catch (error) {
+    console.error('Error during registration:', error.message);
+    res.status(500).json({ error: 'Server error, please try again later' });
   }
 });
 
-// Route to fetch movies from the database
-app.get("/movies", async (req, res) => {
+// Login Route
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const movies = await Movie.find({});
-    res.status(200).json(movies);
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: 'Invalid email or password' });
+
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({
+      message: 'Login successful',
+      token,
+      profileImage: user.profileImage, // Include profile image in response
+    });
   } catch (error) {
-    res.status(500).send("Error fetching movies");
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Server error, please try again later' });
   }
 });
 
-app.get("/movies/:title", async (req, res) => {
-  const { title } = req.params;
+// Update Profile Image Route
+app.put('/api/user/profile-image', authenticateToken, async (req, res) => {
+  const { profileImage } = req.body;
+
   try {
-    const movie = await Movie.findOne({ title: title.replace(/_/g, " ") }); // Replace underscores with spaces
-    if (!movie) {
-      return res.status(404).json({ error: "Movie not found" });
-    }
-    res.json(movie);
-    console.log(movie);
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { profileImage },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({
+      message: 'Profile image updated successfully',
+      profileImage: user.profileImage,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    console.error('Error updating profile image:', error.message);
+    res.status(500).json({ error: 'Server error, please try again later' });
   }
 });
 
-// app.get("/update-all-reviews", async (req, res) => {
-//   await updateAllMovieReviews();
-//   res.send(
-//     "Review update process for all movies with empty comments has been initiated."
-//   );
-// });
+// Protected Route Example
+app.get('/api/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'This is a protected route', userId: req.user.userId });
+});
 
-// Start server
-app.listen(5000, async () => {
-  console.log("Server running on port 5000");
-  // await updateAllMovieReviews();
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });

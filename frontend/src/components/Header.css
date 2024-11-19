@@ -1,31 +1,67 @@
+/* General Header Styles */
 .header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 800px;
-    padding: 10px;
-    background-color: #111;
-    color: #fff;
-  }
-  
-  .logoimg  {
-    margin-top:30px;
-    width: 100px;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 800px;
+  padding: 10px;
+  background-color: #111;
+  color: #fff;
+}
 
+/* Logo */
+.logoimg {
+  margin-top: 30px;
+  width: 100px;
+}
 
-  
-  nav ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-  }
-  
-  nav li {
-    cursor: pointer;
-  }
-  
-  .fa-search {
-    font-size: 18px;
-  }
-  
+/* Navigation */
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+nav li {
+  cursor: pointer;
+}
+
+.fa-search {
+  font-size: 18px;
+}
+
+/* Profile Wrapper */
+.profileWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Profile Image */
+.profileImage {
+  width: 40px; /* Size of the profile image */
+  height: 40px;
+  border-radius: 50%; /* Circular image */
+  border: 2px solid #fff; /* Optional border around the image */
+}
+
+/* Online Status Indicator */
+.onlineStatus {
+  position: absolute;
+  bottom: 2px; /* Adjust position relative to the profile image */
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background-color: #00ff00; /* Green for online */
+  border: 2px solid #111; /* Match header background */
+  border-radius: 50%; /* Circular dot */
+  display: block; /* Ensure visibility */
+}
+
+/* User Email */
+.userEmail {
+  font-size: 12px;
+  color: #fff;
+  margin-left: 10px; /* Space between profile image and email */
+}
