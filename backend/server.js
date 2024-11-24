@@ -21,21 +21,25 @@ mongoose.connect("mongodb://localhost:27017/CineMood");
 // User Schema
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
-  },
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   terms: { type: Boolean, required: true },
-  profileImage: { type: String, default: null }, // New field for profile image
+  profileImage: { type: String, default: null },
+  watchlist: [
+    {
+      movieId: { type: mongoose.Schema.Types.ObjectId, ref: "Movie" }, // Reference to Movie
+    },
+  ],
 });
 
 const User = mongoose.model("User", userSchema);
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error("JWT_SECRET is not defined in the environment variables.");
+  process.exit(1);
+}
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
@@ -114,17 +118,15 @@ app.post("/save-movies", async (req, res) => {
     const movies = req.body;
 
     for (const movie of movies) {
-      // Check if the movie with the same title already exists in the database
       const existingMovie = await Movie.findOne({ title: movie.title });
 
-      if (!existingMovie) {
-        // If the movie doesn't exist, insert it
-        const newMovie = new Movie(movie);
-        await newMovie.save();
-        console.log(`Movie "${movie.title}" added to the database.`);
-      } else {
-        console.log(`Movie "${movie.title}" already exists in the database.`);
+      if (existingMovie) {
+        return res.status(400).json({ error: `Movie "${movie.title}" already exists in the database.` });
       }
+
+      const newMovie = new Movie(movie);
+      await newMovie.save();
+      console.log(`Movie "${movie.title}" added to the database.`);
     }
 
     res.status(200).send("Movies processed successfully.");
@@ -133,7 +135,6 @@ app.post("/save-movies", async (req, res) => {
     res.status(500).send("Error processing movies");
   }
 });
-
 // Route to fetch movies from the database
 app.get("/movies", async (req, res) => {
   try {
@@ -208,6 +209,64 @@ app.get("/movies/check/:title", async (req, res) => {
     }
   } catch (error) {
     console.error("Error checking movie:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+// Add movie to user's watchlist
+app.post("/api/watchlist", authenticateToken, async (req, res) => {
+  const { movieId } = req.body;
+
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).json({ error: "User  not found" });
+
+    // Check if movieId is valid
+    if (!mongoose.Types.ObjectId.isValid(movieId)) {
+      return res.status(400).json({ error: "Invalid movie ID" });
+    }
+
+    // Check if movie already in the watchlist
+    if (user.watchlist.some((item) => item.movieId.toString() === movieId)) {
+      return res.status(400).json({ error: "Movie already in watchlist" });
+    }
+
+    // Add movie to watchlist
+    user.watchlist.push({ movieId });
+    await user.save();
+
+    res.status(200).json({ message: "Movie added to watchlist" });
+  } catch (error) {
+    console.error("Error adding movie to watchlist:", error); // Log the error
+    res.status(500).json({ error: "Server error" });
+  }
+});
+// Fetch user's watchlist
+app.get("/api/watchlist", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).populate("watchlist.movieId");
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({ watchlist: user.watchlist.map((item) => item.movieId) });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+// Remove movie from user's watchlist
+app.delete("/api/watchlist/:movieId", authenticateToken, async (req, res) => {
+  const { movieId } = req.params;
+
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Filter out the movie from the watchlist
+    user.watchlist = user.watchlist.filter((item) => item.movieId.toString() !== movieId);
+    await user.save();
+
+    res.status(200).json({ message: "Movie removed from watchlist" });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Server error" });
   }
 });

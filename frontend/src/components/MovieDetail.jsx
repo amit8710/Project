@@ -9,7 +9,6 @@ const MovieDetail = () => {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
@@ -18,6 +17,7 @@ const MovieDetail = () => {
           throw new Error("Movie not found");
         }
         const data = await response.json();
+        console.log("Fetched Movie Details:", data); // Add this for debugging
         setMovie(data);
       } catch (err) {
         setError(err.message);
@@ -25,30 +25,43 @@ const MovieDetail = () => {
         setLoading(false);
       }
     };
-
+  
     fetchMovieDetails();
   }, [title]);
-
-  const handleAddToWatchlist = async () => {
-    if (!movie) return; // Ensure movie data exists before attempting to add
-
+  
+  const handleAddToWatchlist = async (movieId) => {
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      alert("Please log in to manage your watchlist.");
+      return;
+    }
+  
     try {
-      // Send the movie title to your backend to add it to the watchlist
-      const response = await axios.post(
-        "http://localhost:5000/add-to-watchlist",
-        {
-          movieName: movie.title,
-        }
-      );
-
-      if (response.status === 200) {
-        alert("Movie added to watchlist!");
+      const response = await fetch("http://localhost:5000/api/watchlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ movieId }),
+      });
+  
+      console.log("Request body:", { movieId }); // Log the request body
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error response:", errorData); // Log the error response
+        throw new Error(errorData.error || "Failed to add movie to watchlist");
       }
+  
+      alert("Movie added to watchlist!");
     } catch (error) {
-      console.error("Failed to add movie to watchlist:", error);
+      console.error("Error adding movie to watchlist:", error);
       alert("Failed to add movie to watchlist");
     }
   };
+  
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -69,9 +82,12 @@ const MovieDetail = () => {
         </div>
 
         {/* Add to Watchlist Button */}
-        <button onClick={handleAddToWatchlist} className="add-to-watch-btn">
-          Add to Watchlist
-        </button>
+        <button
+  onClick={() => handleAddToWatchlist(movie._id)} // Pass movie._id dynamically
+  className="add-to-watch-btn"
+>
+  Add to Watchlist
+</button>
       </div>
 
       <div className="movie-reviews">

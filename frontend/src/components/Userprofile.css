@@ -1,49 +1,83 @@
 /* User Profile Dropdown Styles */
 .user-profile {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .profile-icon {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-  }
-  
-  .profile-img {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-  }
-  
-  .dropdown-menu {
-    position: absolute;
-    top: 40px; /* Adjust the distance between the profile icon and the dropdown */
-    right: 0;
-    background-color: white;
-    border: 1px solid #ccc;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    width: 150px;
-    padding: 10px;
-    display: none;
-  }
-  
-  .dropdown-item {
-    display: block;
-    padding: 8px 0;
-    text-decoration: none;
-    color: black;
-  }
-  
-  .dropdown-item:hover {
-    background-color: #f1f1f1;
-  }
-  
-  /* Display dropdown when it is open */
-  .user-profile .dropdown-menu {
-    display: block;
-  }
-  
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.profile-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 40px; /* Adjust the distance between the profile icon and the dropdown */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  width: 180px;
+  padding: 10px;
+  display: none;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 3px;
+  background-color: #0056b3; /* Dark blue background for both buttons */
+  transition: background-color 0.2s ease;
+  width: 100%; /* Ensure both buttons take up the full width of the dropdown */
+  box-sizing: border-box; 
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown-item:active {
+  background-color: #e0e0e0;
+}
+
+.dropdown-item:nth-child(1) {
+  font-weight: 500; 
+  color: white; 
+  background-color: #0056b3; 
+  border-radius: 3px; 
+  padding: 10px 15px; 
+}
+.dropdown-item:nth-child(1):hover {
+  background-color: #003366; 
+}
+
+
+.dropdown-item:nth-child(2) {
+  font-weight: 500; 
+  color: white; 
+  background-color: #0056b3; 
+  border-radius: 3px; 
+  padding: 10px 15px; 
+  margin-top: 10px;
+}
+
+.dropdown-item:nth-child(2):hover {
+  background-color: #003366; 
+}
+
+.user-profile .dropdown-menu {
+  display: block;
+}

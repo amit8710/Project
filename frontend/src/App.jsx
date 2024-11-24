@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import MovieDetails from "./pages/MovieDetails";
 import LoginForm from "./components/loginsignup/LoginForm";
 import RegistrationForm from "./components/loginsignup/RegistrationForm";
+import Watchlist from "./pages/Watchlist";  // Make sure this is imported
 
 function App() {
   // Initialize isLoggedIn based on stayLoggedIn and isLoggedIn in localStorage
@@ -75,7 +76,7 @@ function App() {
             path="/movies/:title"
             element={isLoggedIn ? <MovieDetails /> : <Navigate to="/login" />}
           />
-
+<Route path="/watchlist" element={isLoggedIn ? <Watchlist /> : <Navigate to="/login" />} />  {/* Add the watchlist route */}
           {/* Redirect all other routes to login */}
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>

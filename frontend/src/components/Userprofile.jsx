@@ -28,7 +28,7 @@ function UserProfile() {
       {/* User Profile Icon */}
       <div className="profile-icon" onClick={toggleDropdown}>
         <img
-          src="path_to_user_profile_image.jpg" // Replace with actual profile image path
+          src="path_to_user_profile_image.jpg" // Replace with actual profile image path or icon URL
           alt="User Profile"
           className="profile-img"
         />
