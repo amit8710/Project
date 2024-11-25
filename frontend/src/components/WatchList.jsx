@@ -49,20 +49,27 @@ const Watchlist = () => {
         throw new Error("No token found in localStorage.");
       }
 
-      const response = await fetch(`http://localhost:5000/api/watchlist/${movieId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`, // Proper Authorization header
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/watchlist/${movieId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`, // Proper Authorization header
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to remove movie from watchlist.");
+        throw new Error(
+          errorData.error || "Failed to remove movie from watchlist."
+        );
       }
 
       // Update state by removing the deleted movie
-      setMovies((prevMovies) => prevMovies.filter((movie) => movie._id !== movieId));
+      setMovies((prevMovies) =>
+        prevMovies.filter((movie) => movie._id !== movieId)
+      );
       alert("Movie removed from watchlist!");
     } catch (error) {
       console.error("Error removing movie from watchlist:", error);
@@ -73,13 +80,10 @@ const Watchlist = () => {
   // Conditional rendering based on states
   if (loading) return <p>Loading watchlist...</p>;
   if (error) return <p>Error fetching watchlist: {error}</p>;
-  if (!movies.length) return <p>Your watchlist is empty!</p>;
+  if (!movies.length) return <p className="empty">Your watchlist is empty!</p>;
 
   return (
     <div className="watchlist-container">
-      <button className="back-to-home-btn" onClick={() => navigate("/")}>
-        Go Back to Home Page
-      </button>
       <h1>Your Watchlist</h1>
       <div className="watchlist-movies">
         {movies.map((movie) => (

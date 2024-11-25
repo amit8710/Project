@@ -121,7 +121,9 @@ app.post("/save-movies", async (req, res) => {
       const existingMovie = await Movie.findOne({ title: movie.title });
 
       if (existingMovie) {
-        return res.status(400).json({ error: `Movie "${movie.title}" already exists in the database.` });
+        return res.status(400).json({
+          error: `Movie "${movie.title}" already exists in the database.`,
+        });
       }
 
       const newMovie = new Movie(movie);
@@ -243,7 +245,9 @@ app.post("/api/watchlist", authenticateToken, async (req, res) => {
 // Fetch user's watchlist
 app.get("/api/watchlist", authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).populate("watchlist.movieId");
+    const user = await User.findById(req.user.userId).populate(
+      "watchlist.movieId"
+    );
     if (!user) return res.status(404).json({ error: "User not found" });
 
     res.json({ watchlist: user.watchlist.map((item) => item.movieId) });
@@ -261,13 +265,43 @@ app.delete("/api/watchlist/:movieId", authenticateToken, async (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found" });
 
     // Filter out the movie from the watchlist
-    user.watchlist = user.watchlist.filter((item) => item.movieId.toString() !== movieId);
+    user.watchlist = user.watchlist.filter(
+      (item) => item.movieId.toString() !== movieId
+    );
     await user.save();
 
     res.status(200).json({ message: "Movie removed from watchlist" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Forward the prediction request to the Flask backend
+app.post("/predict", async (req, res) => {
+  try {
+    // Send the POST request to Flask (running on port 5001)
+    const response = await fetch("http://127.0.0.1:5001/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // Specify content type as JSON
+      },
+      body: JSON.stringify(req.body), // Forward the request body to Flask
+    });
+
+    // Check if the response from Flask is OK (status 200-299)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Parse the response as JSON
+    const data = await response.json();
+
+    // Send the prediction data back to the React frontend
+    res.json(data);
+  } catch (error) {
+    console.error("Error in Node.js server:", error);
+    res.status(500).send("Error predicting with Flask");
   }
 });
 

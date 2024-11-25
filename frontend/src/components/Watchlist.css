@@ -1,4 +1,5 @@
 /* General container for the watchlist page */
+
 .watchlist-container {
   max-width: 1200px;
   margin: 20px;
@@ -8,6 +9,11 @@
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+}
+
+.empty{
+  min-height: 60vh;
+  padding-top: 100px;
 }
 
 /* Align watchlist title to the left */

@@ -10,7 +10,7 @@ import Home from "./pages/Home";
 import MovieDetails from "./pages/MovieDetails";
 import LoginForm from "./components/loginsignup/LoginForm";
 import RegistrationForm from "./components/loginsignup/RegistrationForm";
-import Watchlist from "./pages/Watchlist";  // Make sure this is imported
+import Watchlist from "./pages/WatchListPage"; // Make sure this is imported
 
 function App() {
   // Initialize isLoggedIn based on stayLoggedIn and isLoggedIn in localStorage
@@ -61,22 +61,23 @@ function App() {
               )
             }
           />
-
           {/* Route for registration */}
           <Route path="/register" element={<RegistrationForm />} />
-
           {/* Protected route for home */}
           <Route
             path="/"
             element={isLoggedIn ? <Home /> : <Navigate to="/login" />}
           />
-
           {/* Protected route for movie details */}
           <Route
             path="/movies/:title"
             element={isLoggedIn ? <MovieDetails /> : <Navigate to="/login" />}
           />
-<Route path="/watchlist" element={isLoggedIn ? <Watchlist /> : <Navigate to="/login" />} />  {/* Add the watchlist route */}
+          <Route
+            path="/watchlist"
+            element={isLoggedIn ? <Watchlist /> : <Navigate to="/login" />}
+          />{" "}
+          {/* Add the watchlist route */}
           {/* Redirect all other routes to login */}
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
@@ -86,3 +87,50 @@ function App() {
 }
 
 export default App;
+
+// import React, { useState } from "react";
+
+// const App = () => {
+//   const [comment, setComment] = useState("");
+//   const [sentiment, setSentiment] = useState(null);
+//   const [error, setError] = useState(null);
+
+//   const handleSubmit = async () => {
+//     try {
+//       const response = await fetch("http://localhost:5000/predict", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ comment: comment }), // Send the comment as JSON
+//       });
+
+//       if (!response.ok) {
+//         throw new Error(`HTTP error! status: ${response.status}`);
+//       }
+
+//       const data = await response.json();
+//       setSentiment(data.sentiment); // Set the sentiment result
+//       setError(null);
+//     } catch (err) {
+//       setError("Error fetching prediction: " + err.message);
+//       setSentiment(null);
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <h1>Sentiment Analysis</h1>
+//       <textarea
+//         placeholder="Enter a comment..."
+//         onChange={(e) => setComment(e.target.value)}
+//       />
+//       <button onClick={handleSubmit}>Analyze Sentiment</button>
+
+//       {error && <p style={{ color: "red" }}>{error}</p>}
+//       {sentiment && <p>Sentiment: {sentiment}</p>}
+//     </div>
+//   );
+// };
+
+// export default App;
